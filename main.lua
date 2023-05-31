@@ -49,25 +49,7 @@ function love.load()
 end
 
 function love.update(dt)
-    if love.keyboard.isDown('w') then
-        player1.dy = -PADDLE_SPEED
-    elseif love.keyboard.isDown('s') then
-        player1.dy = PADDLE_SPEED
-    else
-        player1.dy = 0
-    end
-
-    if love.keyboard.isDown('up') then
-        player2.dy = -PADDLE_SPEED
-    elseif love.keyboard.isDown('down') then
-        player2.dy = PADDLE_SPEED
-    else
-        player2.dy = 0
-    end
-
     if gameState == 'play' then
-        ball:update(dt)
-
         if ball:collides(player1) or ball:collides(player2) then
             ball.dx = -ball.dx * 1.03
             ball.dy = -ball.dy / ball.dy * math.random(10, 150)
@@ -90,7 +72,40 @@ function love.update(dt)
             ball.dy = -ball.dy
             ball.y = BOTTOM_BALL_LIMIT
         end
+    end
 
+    if ball.x < 0 - ball.width then
+        servingPlayer = 1
+        player2Score = player2Score + 1
+        ball:reset()
+        gameState = 'start'
+    end
+
+    if ball.x > VIRTUAL_WIDTH then
+        servingPlayer = 2
+        player1Score = player1Score + 1
+        ball:reset()
+        gameState = 'start'
+    end
+
+    if love.keyboard.isDown('w') then
+        player1.dy = -PADDLE_SPEED
+    elseif love.keyboard.isDown('s') then
+        player1.dy = PADDLE_SPEED
+    else
+        player1.dy = 0
+    end
+
+    if love.keyboard.isDown('up') then
+        player2.dy = -PADDLE_SPEED
+    elseif love.keyboard.isDown('down') then
+        player2.dy = PADDLE_SPEED
+    else
+        player2.dy = 0
+    end
+
+    if gameState == 'play' then
+        ball:update(dt)
     end
 
     player1:update(dt)
