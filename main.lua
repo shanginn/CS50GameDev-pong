@@ -17,6 +17,8 @@ BALL_HEIGHT = 4
 TOP_BALL_LIMIT = 0
 BOTTOM_BALL_LIMIT = VIRTUAL_HEIGHT - BALL_HEIGHT
 
+SCORE_TO_WIN = 10
+
 PADDLE_SPEED = 200
 
 function love.load()
@@ -42,12 +44,18 @@ function love.load()
     player2Score = 0
 
     servingPlayer = math.random(2)
+    winningPlayer = 0
 
     player1 = Paddle(10, 30)
     player2 = Paddle(VIRTUAL_WIDTH - 10, VIRTUAL_HEIGHT - 50)
 
     ball = Ball(VIRTUAL_WIDTH / 2 - 2, VIRTUAL_HEIGHT / 2 - 2, BALL_WIDTH, BALL_HEIGHT)
 
+    -- the state of our game; can be any of the following:
+    -- 1. 'start' (the beginning of the game, before first serve)
+    -- 2. 'serve' (waiting on a key press to serve the ball)
+    -- 3. 'play' (the ball is in play, bouncing between paddles)
+    -- 4. 'done' (the game is over, with a victor, ready for restart)
     gameState = 'start'
 end
 
@@ -83,20 +91,33 @@ function love.update(dt)
             ball.dy = -ball.dy
             ball.y = BOTTOM_BALL_LIMIT
         end
-    end
+    
 
-    if ball.x < 0 - ball.width then
-        servingPlayer = 1
-        player2Score = player2Score + 1
-        ball:reset()
-        gameState = 'serve'
-    end
+        if ball.x < 0 - ball.width then
+            servingPlayer = 1
+            player2Score = player2Score + 1
+            
+            if player2Score == SCORE_TO_WIN then
+                winningPlayer = 2
+                gameState = 'done'
+            else
+                gameState = 'serve'
+                ball:reset()
+            end
+        end
 
-    if ball.x > VIRTUAL_WIDTH then
-        servingPlayer = 2
-        player1Score = player1Score + 1
-        ball:reset()
-        gameState = 'serve'
+        if ball.x > VIRTUAL_WIDTH then
+            servingPlayer = 2
+            player1Score = player1Score + 1
+            
+            if player1Score == SCORE_TO_WIN then
+                winningPlayer = 1
+                gameState = 'done'
+            else
+                gameState = 'serve'
+                ball:reset()
+            end
+        end
     end
 
     if love.keyboard.isDown('w') then
@@ -126,11 +147,28 @@ end
 function love.keypressed(key)
     if key == 'escape' or key == 'q' then
         love.event.quit()
-    elseif key == 'return' or key == 'enter' then
+    elseif key == 'enter' or key == 'return' then
         if gameState == 'start' then
             gameState = 'serve'
         elseif gameState == 'serve' then
             gameState = 'play'
+        elseif gameState == 'done' then
+            -- game is simply in a restart phase here, but will set the serving
+            -- player to the opponent of whomever won for fairness!
+            gameState = 'serve'
+
+            ball:reset()
+
+            -- reset scores to 0
+            player1Score = 0
+            player2Score = 0
+
+            -- decide serving player as the opposite of who won
+            if winningPlayer == 1 then
+                servingPlayer = 2
+            else
+                servingPlayer = 1
+            end
         end
     end
 end
@@ -145,12 +183,21 @@ function love.draw()
     if gameState == 'start' then
         love.graphics.setFont(smallFont)
         love.graphics.printf('Welcome to Pong!', 0, 5, VIRTUAL_WIDTH, 'center')
+        love.graphics.setFont(smallerFont)
         love.graphics.printf('Press ENTER to start', 0, 20, VIRTUAL_WIDTH, 'center')
     elseif gameState == 'serve' then
         love.graphics.setFont(smallFont)
         love.graphics.printf('Player ' .. tostring(servingPlayer) .. "'s serve!", 
             0, 5, VIRTUAL_WIDTH, 'center')
+        love.graphics.setFont(smallerFont)
         love.graphics.printf('Press Enter to serve!', 0, 20, VIRTUAL_WIDTH, 'center')
+    elseif gameState == 'done' then
+        -- UI messages
+        love.graphics.setFont(smallFont)
+        love.graphics.printf('Player ' .. tostring(winningPlayer) .. ' wins!',
+            0, 10, VIRTUAL_WIDTH, 'center')
+        love.graphics.setFont(smallerFont)
+        love.graphics.printf('Press Enter to restart!', 0, 30, VIRTUAL_WIDTH, 'center')
     elseif gameState == 'play' then 
 
     end
