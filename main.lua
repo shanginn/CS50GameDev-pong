@@ -40,6 +40,12 @@ function love.load()
         vsync = true,
     })
 
+    sounds = {
+        ['paddle_hit']  = love.audio.newSource('sounds/paddle_hit.wav', 'static'),
+        ['score']       = love.audio.newSource('sounds/score.wav', 'static'),
+        ['wall_hit']    = love.audio.newSource('sounds/wall_hit.wav', 'static')
+    }
+
     player1Score = 0
     player2Score = 0
 
@@ -80,20 +86,25 @@ function love.update(dt)
             if ball:collides(player2) then
                 ball.x = player2.x - player2.width
             end
+
+            sounds['paddle_hit']:play()
         end
 
-        if ball.y <= TOP_BALL_LIMIT then
-            ball.dy = -ball.dy
-            ball.y = TOP_BALL_LIMIT
-        end
+        if ball.y <= TOP_BALL_LIMIT or  ball.y >= BOTTOM_BALL_LIMIT then
+            if ball.y <= TOP_BALL_LIMIT then
+                ball.y = TOP_BALL_LIMIT
+            end
 
-        if ball.y >= BOTTOM_BALL_LIMIT then
+            if ball.y >= BOTTOM_BALL_LIMIT then
+                ball.y = BOTTOM_BALL_LIMIT
+            end
+
             ball.dy = -ball.dy
-            ball.y = BOTTOM_BALL_LIMIT
+            sounds['wall_hit']:play()
         end
-    
 
         if ball.x < 0 - ball.width then
+            sounds['score']:play()
             servingPlayer = 1
             player2Score = player2Score + 1
             
@@ -107,6 +118,7 @@ function love.update(dt)
         end
 
         if ball.x > VIRTUAL_WIDTH then
+            sounds['score']:play()
             servingPlayer = 2
             player1Score = player1Score + 1
             
