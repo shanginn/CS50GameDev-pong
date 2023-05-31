@@ -46,8 +46,8 @@ function love.load()
         ['wall_hit']    = love.audio.newSource('sounds/wall_hit.wav', 'static')
     }
 
-    player1Score = 0
-    player2Score = 0
+    player1Score = 6
+    player2Score = 9
 
     servingPlayer = math.random(2)
     winningPlayer = 0

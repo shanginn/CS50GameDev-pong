@@ -1,6 +1,15 @@
 # CS50GameDev-Pong
 
-This repository contains a version of the classic game Pong. This project was created for CS50's Introduction to Game Development course. The game is written in Lua using the LÖVE 2D game engine.
+This repository contains a version of the classic game Pong.
+This project was created based on CS50's Introduction to Game Development course.
+
+![screenshot](screenshot.png)
+
+- [Original repo](https://github.com/games50/pong)
+- [YouTube lecture](https://www.youtube.com/watch?v=GfwpRU0cT10)
+- [Course link](https://learning.edx.org/course/course-v1:HarvardX+CS50G+Games/home)
+
+The game is written in Lua using the LÖVE 2D game engine.
 
 ## Prerequisites
 
